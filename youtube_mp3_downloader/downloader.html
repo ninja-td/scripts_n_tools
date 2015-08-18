@@ -1,0 +1,64 @@
+<html>
+<head>
+  <script src="http://www.yvoschaap.com/ytpage/ytembed.js"></script>
+  <script src="http://api.convert2mp3.cc/api.js"></script>
+  <script>
+    var downloadCurrentVid = function() {
+      var result = document.querySelector('a');
+      if (!result) {
+        console.log('no result loaded');
+        return;
+      }
+      console.log('found song url:' + result.href);
+      var yId = result.href.split('v=')[1];
+      console.log('result id:' + yId);
+      var downloadContainer = document.getElementById('downloads');
+      downloadContainer = document.createElement('div');
+      document.getElementById('downloads').appendChild(downloadContainer);
+      downloadContainer.innerHTML = '<iframe src="http://api.convert2mp3.cc/?v='
+          + yId + '" width="500" height="50" marginwidth="0" marginheight="0"'
+          + ' frameborder="0" scrolling="no"></iframe>';
+    }
+    var searchSongs = function(songList, index) {
+      if (index == undefined || index >= songList.length) {
+        return;
+      }
+      queryParams = {
+        'block': 'ytThumbs',
+        'type': 'search',
+        'results': 1,
+        'player': 'link'
+      }
+      songName = songList[index];
+      console.log("processing song:" + songName);
+      queryParams['q'] = songName;
+      ytEmbed.init(queryParams);
+      setTimeout(downloadCurrentVid, 1000);
+      setTimeout(function() {searchSongs(songList, index + 1);}, 2000);
+    }
+    var downloadIt = function() {
+      document.getElementById('downloads').innerHTML = '';
+      var songList = document.getElementById('song-list').value.split('\n');
+      for (var i = 0; i < songList.length; i++) {
+        // Clean up the song list if we can.
+        songList[i] = songList[i].trim().replace(/[,]+$/, '');
+      }
+      searchSongs(songList, 0);
+    };
+  </script>
+</head>
+
+<body>
+  <div style='width:1000px;margin:auto;'>
+    <div id=downloads style="float:right;"></div>
+    <div>
+      <div>
+        List of songs
+        <input type=button value=start onclick="downloadIt()" />
+      </div>
+      <textarea id=song-list style="width:300px;height:400px;"
+                placeholder="Enter songs here one in a line..." ></textarea>
+  </div>
+  <div id="ytThumbs" style="display:none;"></div>
+</body>
+</html>
